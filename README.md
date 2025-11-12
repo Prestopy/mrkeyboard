@@ -1,43 +1,94 @@
-# Processing Library Template
-This is a template to help developers of Processing libraries to develop and release.
+# Mr. Keyboard
+Mr. Keyboard is a simple library designed to make it easier to use keyboard events in Processing.
 
-Please read the [documentation website](https://processing.github.io/processing-library-template/)
-for more information on how to use this template.
+# Installation
 
-Three important outputs are required to contribute a library to Processing, and this template provides 
-help and guidance on them. They are:
-1. **The library's code** - This template will build your code into a jar file with Gradle.
-2. **A website for the library** - We recommend using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
-   to create a static website for your library. It allows you to write content for your website
-   using markdown, and structure the site using a yml configuration file. We provide a skeleton
-   MkDocs website as part of this template.
-3. **A url that serves the release artifacts** - We have already configured Gradle tasks to create the
-   release artifacts. If you host your code on Github, You can create a Github release that serves the 
-   release artifacts.
+After installing the library in your Processing sketchbook, import and use the library with:
+```java
+import com.prestopy.mrkeyboard.*;
+MrKeyboard k;
 
-
-References for developing libraries for Processing can be found on the following Github wiki pages:
-- https://github.com/processing/processing4/wiki/Library-Basics
-- https://github.com/processing/processing4/wiki/Library-Guidelines
-- https://github.com/processing/processing4/wiki/Library-Overview
-
-> [!Note]
-> This template is based on Gradle. If you are looking for the old Ant-based template, see [processing/processing-library-template-ant](https://github.com/processing/processing-library-template-ant)
+void setup() {
+   k = new MrKeyboard(this); // pass the PApplet
+}
+```
+That's it. Cool :)
 
 
-## Contributors
+# Docs
+## Constructor
+`MrKeyboard(PApplet app)`<br /><br />
+Initializes the keyboard handler and registers with the provided Processing applet
 
-This template was created by Claudine Chen ([@mingness](https://github.com/mingness)) as part of the 2024 New Beginnings (pr05) Grant from the 
-[Processing Foundation](https://github.com/processing), to simplify the
-workflows for libraries, tools, and modes, mentored by Stef Tervelde ([@Stefterv](https://github.com/stefterv)).
+**Parameters:**
+- `app` - the parent `PApplet` instance to register the keyboard event listner with.
 
-It is based on and inspired by a number of Processing library templates, including:
-- https://github.com/processing/processing-library-template-gradle
-- https://github.com/enkatsu/processing-library-template-gradle
-- https://github.com/hamoid/processing-library-template/
+## `HashSet<Integer> getKeysDown()`
+Gets a set of all the keys down at the given moment.
 
-I wish to thank the developers of these repositories, who generously provided
-guidance and time. This template has been developed in collaboration with
-[@enkatsu](https://github.com/enkatsu).
+**Returns:**
+- A `HashSet` containing a list of key codes in the `Integer` type
 
-The example library was developed by Stig Møller Hansen ([@stixan](https://github.com/stixan)).
+## `boolean isKeyDown(int kCode)`
+Checks whether a specific key (by key code) is currently pressed.
+
+**Parameters:**
+- `kCode` - integer with the key code see [`java.awt.events.KeyEvent`](https://docs.oracle.com/javase/8/docs/api/java/awt/event/KeyEvent.html)
+
+**Returns:**
+- `true` if the key is down. `false` otherwise
+
+## `boolean isKeyDown(char k)`
+
+**Parameters:**
+- `k` - character to check
+
+**Returns:**
+- `true` if the key is down. `false` otherwise
+
+## `boolean isKeyTapped(int kCode)`
+Detects a single key tap without repetition. A 'key tap' is triggered once per press and won't repeat until the key is released and pressed again. This method is polling-based, not event-driven- it checks the key state when called. If the key is currently held down, the method returns `true` the first time it’s called after the press, and `false` on subsequent calls until the key is released.
+
+**Parameters:**
+- `k` - character to check
+
+**Returns:**
+- `true` if the key is tapped. `false` otherwise
+
+## `boolean isKeyTapped(char k)`
+
+**Parameters:**
+- `k` - character to check
+
+**Returns:**
+- `true` if the key is tapped. `false` otherwise
+
+---
+## Recording
+You can record and save key events as they happen with the `startRecording()`, `endRecording()`, `clearRecording()`, and `getRecording()` methods.
+### Example
+```java
+void setup() {
+  size(800, 800);
+  k = new MrKeyboard(this);
+  k.startRecording();
+  // fullScreen();
+}
+
+void draw() {
+  background(0);
+  String str = "";
+  for (int k : k.getRecording()) {
+    if (k == 8) { // BACKSPACE
+      str.substring(0, str.length()-1);
+    } else {
+      char ch = (char)k; // !!! not a perfect conversion from keycodes to characters
+      str += ch;
+    }
+  }
+  
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text(str, width/2, height/2);
+}
+```
